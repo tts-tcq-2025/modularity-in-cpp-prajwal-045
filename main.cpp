@@ -1,41 +1,4 @@
-// File: TelCoColorCoder.h
-#pragma once
-
-#include <string>
-#include <array>
-
-namespace TelCoColorCoder {
-
-enum class MajorColor { White = 0, Red, Black, Yellow, Violet };
-enum class MinorColor { Blue = 0, Orange, Green, Brown, Slate };
-
-constexpr int kMajorColorCount = 5;
-constexpr int kMinorColorCount = 5;
-
-extern const std::array<std::string, kMajorColorCount> kMajorColorNames;
-extern const std::array<std::string, kMinorColorCount> kMinorColorNames;
-
-class ColorPair {
-private:
-    MajorColor major_;
-    MinorColor minor_;
-public:
-    ColorPair(MajorColor major, MinorColor minor) noexcept;
-    MajorColor major() const noexcept;
-    MinorColor minor() const noexcept;
-    std::string toString() const;
-};
-
-ColorPair getColorFromPairNumber(int pairNumber);
-int getPairNumberFromColor(MajorColor major, MinorColor minor);
-
-// Returns a multiline string suitable for printing as a reference manual.
-std::string formatColorCoding();
-
-} // namespace TelCoColorCoder
-
-
-// File: TelCoColorCoder.cpp
+// TelCoColorCoder.cpp
 #include "TelCoColorCoder.h"
 
 #include <cassert>
@@ -76,64 +39,14 @@ int getPairNumberFromColor(MajorColor major, MinorColor minor) {
 
 std::string formatColorCoding() {
     std::ostringstream oss;
-    oss << "Pair	Major	Minor
-";
+    oss << "Pair\tMajor\tMinor\n";
     const int total = kMajorColorCount * kMinorColorCount;
     for (int i = 1; i <= total; ++i) {
         ColorPair p = getColorFromPairNumber(i);
-        oss << i << "	" << kMajorColorNames[static_cast<int>(p.major())]
-            << "	" << kMinorColorNames[static_cast<int>(p.minor())] << "
-";
+        oss << i << "\t" << kMajorColorNames[static_cast<int>(p.major())]
+            << "\t" << kMinorColorNames[static_cast<int>(p.minor())] << "\n";
     }
     return oss.str();
 }
 
 } // namespace TelCoColorCoder
-
-
-// File: main.cpp (tests + example usage)
-#include <iostream>
-#include <cassert>
-
-#include "TelCoColorCoder.h"
-
-using TelCoColorCoder::MajorColor;
-using TelCoColorCoder::MinorColor;
-
-void testNumberToPair(int pairNumber,
-    MajorColor expectedMajor,
-    MinorColor expectedMinor)
-{
-    TelCoColorCoder::ColorPair colorPair =
-        TelCoColorCoder::getColorFromPairNumber(pairNumber);
-    std::cout << "Got pair " << colorPair.toString() << std::endl;
-    assert(colorPair.major() == expectedMajor);
-    assert(colorPair.minor() == expectedMinor);
-}
-
-void testPairToNumber(
-    MajorColor major,
-    MinorColor minor,
-    int expectedPairNumber)
-{
-    int pairNumber = TelCoColorCoder::getPairNumberFromColor(major, minor);
-    std::cout << "Got pair number " << pairNumber << std::endl;
-    assert(pairNumber == expectedPairNumber);
-}
-
-int main() {
-    // Unit tests (same expectations as original single-file version)
-    testNumberToPair(4, MajorColor::White, MinorColor::Brown);
-    testNumberToPair(5, MajorColor::White, MinorColor::Slate);
-
-    testPairToNumber(MajorColor::Black, MinorColor::Orange, 12);
-    testPairToNumber(MajorColor::Violet, MinorColor::Slate, 25);
-
-    // New feature: print reference manual
-    std::cout << "
-=== 25-pair color code reference ===
-";
-    std::cout << TelCoColorCoder::formatColorCoding();
-
-    return 0;
-}
